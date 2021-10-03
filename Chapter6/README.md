@@ -15,7 +15,35 @@
         3. Write a function `safeHead :: [a] -> (a -> b) -> b -> b`.  This should take in a list and return an optional representing whether the head could be found or not.
         4. Use your `safeHead` to write a function `showFirst :: Show a => [a] -> String` that will `show` the first element of a list if present and otherwise show `"empty list"`.
     2. `Optional` was pretty cool, let's do another!  Let's implement `either :: (a -> c) -> (b -> c) -> c`.
-        1. Write a function `left :: a -> either` such that `left 1 (show) (++ " functions") = "1"`.
-        2. Write a function `right :: b -> either` such that `right "fancy" (show) (++ " functions") = "fancy functions"`.
+        1. Write a function `left :: a -> either` such that 
+            ```haskell
+            left 1 (show) (++ " functions") == "1"
+            ```
+        2. Write a function `right :: b -> either` such that
+            ```haskell
+            right "fancy" (show) (++ " functions") ==
+                "fancy functions"
+            ```
         3. Write a function like `isPrime` that returns either number if it is prime or the first factor of the number found.  Since these are both numbers you'll have to use `left` and `right` to differentiate them.  Use that function to map `[1..20]` to strings containing `"Prime: n"` if it is prime or `"Factor: f"` if it is a factor.
             - Note: the signature of your `isPrime` function should be `(Integer -> c) -> (Integer -> c) -> c` because both the left and right sides have the same type and you probably want to use `Integer` just to avoid specifying `Integral` and `Show` all the time.
+    3. Nice!  Now let's implement a simple dictionary lookup system!  What is a dictionary other that a way to provide a key and check if a value is present or not?  That's pretty easy to type out.  It's just a function that takes a key `Eq k => k` and returns an optional value `v`.  Let's build it using recursive functions!  
+    (This will be horribly inefficient, so don't do this in production.)
+        1. Let's start with the empty dictionary.  This should be a function `empty` that will return `none` no matter what key is passed in.  This is our base/edge case. So in this case,  
+            ```haskell
+            empty k show "not found" == "not found"
+            ```
+        2. What good are dictionaries if we can't add things? Write a function `add` which takes a key, value and dictionary and produces a new dictionary that will return the value when queried with the key. It should behave such that  
+            ```haskell
+            let dict = add "a" 42 empty
+            in dict "a" id 0 == 42
+            ```
+        3. Sometimes we like to remove things, so let's write `remove` which will cause the dictionary to return `none` if the key is provided.
+            ```haskell
+            let dict = remove "a" . add "a" 42 $ empty
+            in dict "a" id 0 == 0
+            ```
+        4. Now let's do something a little more interesting.  Write a function `countElems` that will take in a list of items belonging to the `Eq` typeclass and return a dictionary with their counts.  For example,
+            ```haskell
+            (countElems [1, 2, 1, 3, 1]) 1 id 0 == 3
+            ```
+            - Note: If you explicitly write the types you will have to type this function as `countElem :: Eq k => [k] -> k -> (Integer -> Integer) -> Integer -> Integer`.  This is because we don't yet have the knowledge to type it properly.
