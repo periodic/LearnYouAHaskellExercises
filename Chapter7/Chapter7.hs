@@ -21,7 +21,7 @@ member = Map.member
 charFrequency :: String -> Map.Map Char Int
 charFrequency =
   foldr (uncurry Map.insert) Map.empty
-  . map (\cs@(c:_) -> (c, length cs))
+  . map (\cs -> (head cs, length cs))
   . List.group
   . List.sort
   . filter Char.isAlphaNum
@@ -29,7 +29,7 @@ charFrequency =
 wordFrequency :: String -> Map.Map String Int
 wordFrequency =
   foldr (uncurry Map.insert) Map.empty
-  . map (\cs@(c:_) -> (c, length cs))
+  . map (\cs -> (head cs, length cs))
   . List.group
   . List.sort
   . map (filter Char.isAlphaNum)
