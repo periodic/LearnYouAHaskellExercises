@@ -92,11 +92,11 @@ andThen parserA fParserB str =
     Failure s ->
       Failure s
 
-(<|) :: Parser b1 -> Parser b2 -> Parser b1
+(<|) :: Parser a -> Parser b -> Parser a 
 pa <| pb =
   pa `andThen` \a -> mapParser (const a) pb
 
-(|>) :: Parser b1 -> Parser b2 -> Parser b2
+(|>) :: Parser a -> Parser b -> Parser b
 pa |> pb =
   pa `andThen` const pb
 
@@ -134,8 +134,8 @@ many = many' []
         Failure s ->
           Success results str
 
-sepBy :: Parser a -> Parser b -> Parser [b]
-sepBy sep parser =
+sepBy :: Parser a -> Parser b -> Parser [a]
+sepBy parser sep =
   mapParser (Maybe.fromMaybe []) $
     optional
       ( parser `andThen` \firstVal ->
@@ -212,14 +212,15 @@ jsonNumber =
 jsonArray :: Parser JsonValue
 jsonArray =
   mapParser JsonArray $
-    char '[' |> whitespace |> sepBy (whitespace |> char ',' |> whitespace) jsonValue <| whitespace <| char ']'
+    char '[' |> whitespace |> jsonValue `sepBy` (whitespace |> char ',' |> whitespace) <| whitespace <| char ']'
 
 jsonObject :: Parser JsonValue
 jsonObject =
   mapParser (JsonObject . Map.fromList) $
     char '{' |> whitespace
-      |> sepBy
-        (whitespace |> char ',' |> whitespace)
+      |> 
         (string <|> (whitespace |> char ':' |> whitespace |> jsonValue))
+        `sepBy`
+        (whitespace |> char ',' |> whitespace)
       <| whitespace
       <| char '}'

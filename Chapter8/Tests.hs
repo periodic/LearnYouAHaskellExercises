@@ -51,6 +51,7 @@ failedParserTests =
 parserTests :: [(Result JsonValue, Result JsonValue)]
 parserTests =
   [
+    
     -- Null
     (jsonNull "null", Success JsonNull ""),
     (jsonNull "nul", Failure "Expected l"),
